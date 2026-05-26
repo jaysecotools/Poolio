@@ -1,0 +1,145 @@
+{
+  "name": "Pool Chemist Pro - Pool Dosing Calculator",
+  "short_name": "Pool Chemist",
+  "description": "Professional pool chemical dosing calculator with live updates, saved readings, and maintenance reminders.",
+  "theme_color": "#0c4a6e",
+  "background_color": "#e0f2fe",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "id": "/",
+  "categories": ["utilities", "lifestyle", "home"],
+  "lang": "en",
+  "dir": "ltr",
+  
+  "icons": [
+    {
+      "src": "icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/maskable-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  
+  "shortcuts": [
+    {
+      "name": "New Reading",
+      "short_name": "Add",
+      "description": "Save a new water test reading",
+      "url": "/?action=add",
+      "icons": [
+        {
+          "src": "icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Saved Readings",
+      "short_name": "Readings",
+      "description": "View your saved test records",
+      "url": "/?action=readings",
+      "icons": [
+        {
+          "src": "icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Maintenance",
+      "short_name": "Tasks",
+      "description": "View maintenance reminders",
+      "url": "/?action=tasks",
+      "icons": [
+        {
+          "src": "icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  
+  "display_override": ["standalone", "browser"],
+  "launch_handler": {
+    "client_mode": ["focus-existing", "auto"]
+  },
+  
+  "screenshots": [
+    {
+      "src": "screenshots/dosing-calculator.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Chemical dosing calculator with live updates"
+    },
+    {
+      "src": "screenshots/saved-readings.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Saved water test records"
+    },
+    {
+      "src": "screenshots/maintenance.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Maintenance reminders"
+    }
+  ],
+  
+  "related_applications": [],
+  "note_taking": {
+    "new_note_url": "/?action=add"
+  }
+}
