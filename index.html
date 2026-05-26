@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=10.0, viewport-fit=cover">
+    
+    <!-- PWA Meta Tags -->
+    <title>Pool Chemist Pro - Accurate Dosing Calculator</title>
+    <meta name="theme-color" content="#0c4a6e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Pool Chemist">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Pool Chemist Pro">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- iOS Icons -->
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192x192.png">
+    
+    <!-- Fallback favicon -->
+    <link rel="icon" type="image/png" href="icons/icon-96x96.png">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .app-wrapper {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(2px);
+            border-radius: 40px;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0c4a6e, #075985);
+            padding: 1.8rem 2rem;
+            color: white;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .volume-indicator {
+            background: #0c4a6e10;
+            border-radius: 20px;
+            padding: 12px 18px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid #0c4a6e20;
+        }
+
+        .volume-indicator span {
+            color: #0c4a6e;
+            font-size: 1.2rem;
+        }
+
+        .two-columns {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 0.9rem;
+        }
+
+        .input-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: #1e3a5f;
+            margin-bottom: 6px;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 24px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            border-color: #0c4a6e;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(12, 74, 110, 0.2);
+        }
+
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 28px 0 24px;
+        }
+
+        button {
+            background: #0c4a6e;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            flex: 1;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            background: #075985;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #475569;
+        }
+        .btn-secondary:hover {
+            background: #334155;
+        }
+
+        .btn-save {
+            background: #2d6a4f;
+        }
+        .btn-save:hover {
+            background: #1f543d;
+        }
+
+        .results-panel {
+            background: #f8fafc;
+            border-radius: 28px;
+            padding: 1.3rem 1.5rem;
+            margin: 1rem 0;
+            border: 1px solid #e2e8f0;
+        }
+
+        .results-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #0f3b5c;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 8px;
+        }
+
+        .dose-card {
+            background: white;
+            border-radius: 20px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border-left: 5px solid #2c7ab1;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .dose-optimal {
+            border-left-color: #2ecc71;
+            background: #f0fdf4;
+        }
+
+        .dose-warning {
+            border-left-color: #e67e22;
+        }
+
+        .chemical-name {
+            font-weight: 800;
+            font-size: 1rem;
+            margin-bottom: 6px;
+        }
+
+        .dose-detail {
+            font-size: 0.9rem;
+            color: #1e293b;
+        }
+
+        .dose-amount {
+            font-weight: 800;
+            color: #0c4a6e;
+            background: #e0f2fe;
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-left: 6px;
+        }
+
+        .saved-section, .reminder-section {
+            margin-top: 28px;
+            border-top: 2px dashed #cbd5e1;
+            padding-top: 1.2rem;
+        }
+
+        .saved-entry {
+            background: #f1f5f9;
+            border-radius: 18px;
+            padding: 10px 15px;
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .load-btn {
+            background: #2c7ab1;
+            padding: 5px 14px;
+            font-size: 0.7rem;
+            border-radius: 30px;
+        }
+
+        .reminder-item {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 10px 14px;
+            margin-top: 8px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+        }
+
+        .disclaimer {
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 28px;
+            color: #4b5563;
+        }
+
+        .version-info {
+            text-align: center;
+            font-size: 9px;
+            padding: 6px;
+            background: #e0e0e0;
+            color: #666;
+            border-top: 1px solid #ccc;
+            cursor: pointer;
+            margin-top: 16px;
+            border-radius: 20px;
+        }
+        .version-info:hover {
+            background: #d0d0d0;
+        }
+
+        .update-banner {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #0c4a6e;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            animation: slideInRight 0.3s ease;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .update-banner button {
+            background: white;
+            color: #0c4a6e;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 8px;
+            flex: 0 0 auto;
+        }
+        .update-banner button:hover {
+            background: #e0f2fe;
+            transform: scale(1.02);
+        }
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .install-banner {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #2d6a4f;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+        .install-banner button {
+            background: white;
+            color: #2d6a4f;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            flex: 0 0 auto;
+        }
+        .install-banner button:hover {
+            background: #e0f2fe;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .offline-banner {
+            background: #ff9800;
+            color: #2c2c2c;
+            text-align: center;
+            font-size: 12px;
+            padding: 6px;
+            display: none;
+        }
+
+        @media (max-width: 650px) {
+            .content { padding: 1.2rem; }
+            button { padding: 10px 12px; }
+        }
+    </style>
+</head>
+<body>
+<div id="offlineBanner" class="offline-banner">⚠️ You're offline - Data is saved locally and will sync when you reconnect</div>
+<div class="app-wrapper">
+    <div class="glass-card">
+        <div class="header">
+            <h1>🧪 Pool Chemist Pro</h1>
+            <p>Live dosing updates · Amounts change with your pool volume</p>
+        </div>
+        <div class="content">
+            <div class="volume-indicator" id="volume-indicator">
+                📐 Current pool volume: <span id="volume-display">--</span>
+            </div>
+
+            <!-- Pool info row -->
+            <div class="two-columns">
+                <div class="input-group">
+                    <label>🏊 Pool Volume</label>
+                    <input type="number" id="pool-volume" step="100" value="50000" placeholder="e.g., 50000">
+                </div>
+                <div class="input-group">
+                    <label>📏 Unit</label>
+                    <select id="volume-unit">
+                        <option value="liters">Liters (L)</option>
+                        <option value="gallons">Gallons (US)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>🧂 Pool Type</label>
+                    <select id="pool-type">
+                        <option value="chlorine">Chlorine (Standard)</option>
+                        <option value="saltwater">Saltwater (SWG)</option>
+                    </select>
+                </div>
+                <div class="input-group" id="salt-group" style="display: none;">
+                    <label>🧂 Current Salt Level (ppm)</label>
+                    <input type="number" id="salt-level" step="100" value="3000">
+                </div>
+            </div>
+
+            <!-- Chemical inputs grid -->
+            <div class="two-columns">
+                <div class="input-group"><label>🟢 Total Chlorine (ppm)</label><input type="number" id="total-chlorine" step="0.1" value="1.2"></div>
+                <div class="input-group"><label>✨ Free Chlorine (ppm)</label><input type="number" id="free-chlorine" step="0.1" value="1.0"></div>
+                <div class="input-group"><label>⚖️ pH</label><input type="number" id="ph" step="0.1" value="7.0"></div>
+                <div class="input-group"><label>🧴 Total Alkalinity (ppm)</label><input type="number" id="ta" step="10" value="70"></div>
+                <div class="input-group"><label>☀️ Cyanuric Acid (ppm)</label><input type="number" id="cya" step="5" value="25"></div>
+                <div class="input-group"><label>🪨 Calcium Hardness (ppm)</label><input type="number" id="hardness" step="25" value="180"></div>
+            </div>
+
+            <div class="button-row">
+                <button onclick="calculateDosing()">🔬 Recalculate Doses</button>
+                <button class="btn-secondary" onclick="resetToDefaults()">⟳ Reset Inputs</button>
+                <button class="btn-save" onclick="saveReading()">💾 Save This Reading</button>
+            </div>
+
+            <!-- DYNAMIC RESULTS SECTION -->
+            <div class="results-panel" id="results-panel">
+                <div class="results-title">📋 <span>Required Chemical Additions</span></div>
+                <div id="dosing-results">Adjust pool volume above to see doses change instantly →</div>
+            </div>
+
+            <!-- Saved readings -->
+            <div class="saved-section">
+                <h3 style="margin-bottom: 12px;">📚 Saved Test Records</h3>
+                <div id="saved-list" style="max-height: 220px; overflow-y: auto;"></div>
+            </div>
+
+            <!-- Maintenance reminders -->
+            <div class="reminder-section">
+                <h3 style="margin-bottom: 10px;">🔧 Maintenance Reminders</h3>
+                <div class="two-columns" style="margin-bottom: 8px;">
+                    <div class="input-group"><label>Task</label><select id="task-type"><option value="cleaning">Regular Cleaning</option><option value="filter">Filter Clean</option><option value="backwash">Backwash</option></select></div>
+                    <div class="input-group"><label>Frequency</label><select id="freq"><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></div>
+                </div>
+                <button onclick="addReminder()" style="margin-bottom: 12px; background:#2c6e4f;">➕ Set Reminder</button>
+                <div id="reminder-list"></div>
+            </div>
+            <div class="disclaimer">
+                ⚠️ Dosing calculations assume standard chemical strengths. Always retest after 24 hours.
+            </div>
+            <div class="version-info" id="versionInfo">
+                Loading version info...
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ======================== PWA VERSION AND UPDATE MANAGEMENT ========================
+    const APP_VERSION = "1.0.0";
+    const CACHE_VERSION = "v1_0_0";
+
+    function showVersionInfo() {
+        const versionElement = document.getElementById('versionInfo');
+        if (versionElement) {
+            versionElement.innerHTML = `🧪 Pool Chemist Pro v${APP_VERSION} | 📱 Installable PWA | Click for info`;
+            versionElement.onclick = () => {
+                alert(`🧪 Pool Chemist Pro - Pool Dosing Calculator\n\nVersion: ${APP_VERSION}\nCache: ${CACHE_VERSION}\n\n✅ Fully installable PWA\n🔄 Auto-updates when online\n📱 Works offline\n💾 Saves readings locally`);
+            };
+        }
+    }
+
+    let updateDeferred = null;
+
+    function showUpdateNotification(registration) {
+        const existingBanner = document.querySelector('.update-banner');
+        if (existingBanner) existingBanner.remove();
+        
+        const banner = document.createElement('div');
+        banner.className = 'update-banner';
+        banner.innerHTML = `
+            🚀 New version available!
+            <button id="updateNowBtn">Update Now</button>
+            <button id="updateLaterBtn">Later</button>
+        `;
+        document.body.appendChild(banner);
+        
+        document.getElementById('updateNowBtn').onclick = async () => {
+            if (registration && registration.waiting) {
+                registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                banner.remove();
+                const loadingMsg = document.createElement('div');
+                loadingMsg.className = 'update-banner';
+                loadingMsg.innerHTML = '🔄 Updating app... Please wait...';
+                loadingMsg.style.background = '#2196f3';
+                document.body.appendChild(loadingMsg);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
+            } else {
+                window.location.reload();
+            }
+        };
+        
+        document.getElementById('updateLaterBtn').onclick = () => {
+            banner.remove();
+        };
+        
+        setTimeout(() => {
+            if (banner && banner.remove) banner.remove();
+        }, 30000);
+    }
+
+    async function registerServiceWorker() {
+        if (!('serviceWorker' in navigator)) {
+            console.log('Service Worker not supported');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/sw.js', { method: 'HEAD' });
+            if (!response.ok) {
+                console.log('Service worker file not found, skipping registration');
+                return;
+            }
+            
+            const registration = await navigator.serviceWorker.register('/sw.js', {
+                scope: '/'
+            });
+            
+            console.log('Service Worker registered with scope:', registration.scope);
+            registration.update();
+            
+            setInterval(() => {
+                registration.update();
+                console.log('Checking for service worker updates...');
+            }, 60 * 60 * 1000);
+            
+            registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                console.log('New service worker found, state:', newWorker.state);
+                
+                newWorker.addEventListener('statechange', () => {
+                    console.log('Service worker state changed:', newWorker.state);
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        console.log('New version available, showing update notification');
+                        showUpdateNotification(registration);
+                    }
+                });
+            });
+            
+            if (registration.waiting) {
+                console.log('Waiting service worker found');
+                showUpdateNotification(registration);
+            }
+            
+        } catch (error) {
+            console.error('Service Worker registration failed:', error);
+        }
+    }
+
+    function isPWAInstalled() {
+        return window.matchMedia('(display-mode: standalone)').matches || 
+               window.navigator.standalone === true;
+    }
+
+    let deferredPrompt = null;
+
+    function showInstallHint() {
+        const hasSeenHint = localStorage.getItem('pwa_hint_seen');
+        if (!hasSeenHint && !isPWAInstalled()) {
+            setTimeout(() => {
+                const banner = document.createElement('div');
+                banner.className = 'install-banner';
+                banner.id = 'installBanner';
+                banner.innerHTML = `
+                    📱 Install Pool Chemist Pro as an App!
+                    <button id="installAppBtn">Install</button>
+                    <button id="dismissInstallBtn">Dismiss</button>
+                `;
+                document.body.appendChild(banner);
+                
+                document.getElementById('installAppBtn').onclick = async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        console.log(`User response to install prompt: ${outcome}`);
+                        deferredPrompt = null;
+                    }
+                    banner.remove();
+                    localStorage.setItem('pwa_hint_seen', 'true');
+                };
+                
+                document.getElementById('dismissInstallBtn').onclick = () => {
+                    banner.remove();
+                    localStorage.setItem('pwa_hint_seen', 'true');
+                };
+            }, 3000);
+        }
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        console.log('beforeinstallprompt event fired');
+    });
+
+    function initPWA() {
+        showVersionInfo();
+        registerServiceWorker();
+        showInstallHint();
+        
+        window.addEventListener('online', () => {
+            console.log('Back online, checking for updates...');
+            document.getElementById('offlineBanner').style.display = 'none';
+            if (navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({ type: 'CHECK_UPDATES' });
+            }
+        });
+        
+        window.addEventListener('offline', () => {
+            console.log('App is offline');
+            document.getElementById('offlineBanner').style.display = 'block';
+            setTimeout(() => {
+                if (document.getElementById('offlineBanner')) {
+                    document.getElementById('offlineBanner').style.display = 'none';
+                }
+            }, 5000);
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPWA);
+    } else {
+        initPWA();
+    }
+
+    // ======================== DOSING CALCULATOR ========================
+    
+    // DOSING FACTORS (grams or mL per 1000 Liters per unit change)
+    const FACTORS = {
+        chlorine: 1.5,        // grams per 1000L per 1ppm
+        phUp: 12,             // grams soda ash per 1000L per 0.1 pH
+        phDown: 10,           // mL acid per 1000L per 0.1 pH
+        alkUp: 18,            // grams baking soda per 1000L per 10ppm
+        alkDown: 9,           // mL acid per 1000L per 10ppm
+        cya: 1.3,             // grams stabilizer per 1000L per 1ppm
+        hardnessUp: 15,       // grams calcium chloride per 1000L per 10ppm
+        salt: 100             // grams salt per 1000L per 100ppm
+    };
+
+    // Target ranges
+    const TARGETS = {
+        totalCl: { min: 1, max: 3, target: 2.0 },
+        freeCl: { min: 1, max: 3, target: 2.0 },
+        ph: { min: 7.2, max: 7.8, target: 7.5 },
+        ta: { min: 80, max: 120, target: 100 },
+        cya: { min: 30, max: 60, target: 40 },
+        hardness: { min: 200, max: 400, target: 250 },
+        salt: { min: 2700, max: 3400, target: 3200 }
+    };
+
+    function getVolumeLiters() {
+        let vol = parseFloat(document.getElementById('pool-volume').value);
+        if (isNaN(vol) || vol <= 0) return 0;
+        const unit = document.getElementById('volume-unit').value;
+        if (unit === 'gallons') return vol * 3.78541;
+        return vol;
+    }
+
+    function updateVolumeDisplay() {
+        const vol = parseFloat(document.getElementById('pool-volume').value);
+        const unit = document.getElementById('volume-unit').value;
+        const volLiters = getVolumeLiters();
+        if (vol > 0 && !isNaN(vol)) {
+            if (unit === 'gallons') {
+                document.getElementById('volume-display').innerHTML = `${vol} gallons (${Math.round(volLiters).toLocaleString()} liters)`;
+            } else {
+                document.getElementById('volume-display').innerHTML = `${vol.toLocaleString()} liters (${(vol * 0.264172).toFixed(1)} gallons)`;
+            }
+        } else {
+            document.getElementById('volume-display').innerHTML = '⚠️ Please enter volume';
+        }
+    }
+
+    function formatAmount(amount, unit, isKg = false) {
+        if (amount <= 0.01) return "✓ none needed";
+        if (isKg && amount >= 1000) return (amount / 1000).toFixed(1) + " kg";
+        if (unit === 'mL' && amount >= 1000) return (amount / 1000).toFixed(1) + " L";
+        if (unit === 'g' && amount >= 1000) return (amount / 1000).toFixed(1) + " kg";
+        return amount.toFixed(1) + " " + unit;
+    }
+
+    function calcDose(current, target, factorPerUnit, scaleType = 'ppm') {
+        const volLiters = getVolumeLiters();
+        if (volLiters <= 0) return 0;
+        let delta = target - current;
+        if (Math.abs(delta) < 0.01) return 0;
+        
+        let multiplier = 1;
+        if (scaleType === 'pH') {
+            multiplier = delta / 0.1;
+        } else if (scaleType === 'ta10') {
+            multiplier = delta / 10;
+        } else if (scaleType === 'hardness10') {
+            multiplier = delta / 10;
+        } else if (scaleType === 'salt100') {
+            multiplier = delta / 100;
+        } else {
+            multiplier = delta;
+        }
+        
+        let required = (multiplier * factorPerUnit * volLiters) / 1000;
+        return Math.abs(required);
+    }
+
+    function calculateDosing() {
+        const volL = getVolumeLiters();
+        updateVolumeDisplay();
+        
+        if (volL <= 0) {
+            document.getElementById('dosing-results').innerHTML = '<div class="dose-card dose-warning">⚠️ Please enter a valid pool volume greater than zero.</div>';
+            return;
+        }
+
+        const totalCl = parseFloat(document.getElementById('total-chlorine').value);
+        const freeCl = parseFloat(document.getElementById('free-chlorine').value);
+        const ph = parseFloat(document.getElementById('ph').value);
+        const ta = parseFloat(document.getElementById('ta').value);
+        const cya = parseFloat(document.getElementById('cya').value);
+        const hardness = parseFloat(document.getElementById('hardness').value);
+        const poolType = document.getElementById('pool-type').value;
+        let salt = poolType === 'saltwater' ? parseFloat(document.getElementById('salt-level').value) : null;
+
+        const container = document.getElementById('dosing-results');
+        container.innerHTML = '';
+
+        let hasAnyAction = false;
+
+        function addDose(chemName, instruction, amount, unit, isOptimal = false, isKg = false) {
+            const div = document.createElement('div');
+            div.className = 'dose-card' + (isOptimal ? ' dose-optimal' : '');
+            div.innerHTML = `<div class="chemical-name">${chemName}</div>
+                             <div class="dose-detail">${instruction} <span class="dose-amount">${formatAmount(amount, unit, isKg)}</span></div>`;
+            container.appendChild(div);
+            if (amount > 0) hasAnyAction = true;
+        }
+
+        // Total Chlorine
+        if (totalCl < TARGETS.totalCl.min) {
+            let dose = calcDose(totalCl, TARGETS.totalCl.target, FACTORS.chlorine);
+            addDose("🟢 Total Chlorine", `Raise from ${totalCl} to ${TARGETS.totalCl.target} ppm →`, dose, 'g');
+        } else if (totalCl > TARGETS.totalCl.max) {
+            addDose("🟢 Total Chlorine", `High (${totalCl} ppm). Dilute or reduce feeder.`, 0, 'g', false);
+        } else {
+            addDose("🟢 Total Chlorine", `Optimal (${totalCl} ppm) ✓`, 0, 'g', true);
+        }
+
+        // Free Chlorine
+        if (freeCl < TARGETS.freeCl.min) {
+            let dose = calcDose(freeCl, TARGETS.freeCl.target, FACTORS.chlorine);
+            addDose("✨ Free Chlorine", `Raise from ${freeCl} to ${TARGETS.freeCl.target} ppm →`, dose, 'g');
+        } else if (freeCl > TARGETS.freeCl.max) {
+            addDose("✨ Free Chlorine", `High (${freeCl} ppm). Reduce output.`, 0, 'g', false);
+        } else {
+            addDose("✨ Free Chlorine", `Ideal (${freeCl} ppm) ✓`, 0, 'g', true);
+        }
+
+        // pH
+        if (ph < TARGETS.ph.min) {
+            let dose = calcDose(ph, TARGETS.ph.target, FACTORS.phUp, 'pH');
+            addDose("⚖️ pH", `pH too low (${ph}). Add pH increaser →`, dose, 'g');
+        } else if (ph > TARGETS.ph.max) {
+            let dose = calcDose(ph, TARGETS.ph.target, FACTORS.phDown, 'pH');
+            addDose("⚖️ pH", `pH too high (${ph}). Add pH decreaser →`, dose, 'mL');
+        } else {
+            addDose("⚖️ pH", `pH balanced (${ph}) ✓`, 0, '', true);
+        }
+
+        // Total Alkalinity
+        if (ta < TARGETS.ta.min) {
+            let dose = calcDose(ta, TARGETS.ta.target, FACTORS.alkUp, 'ta10');
+            addDose("🧴 Alkalinity", `Raise TA from ${ta} to ${TARGETS.ta.target} ppm →`, dose, 'g');
+        } else if (ta > TARGETS.ta.max) {
+            let dose = calcDose(ta, TARGETS.ta.target, FACTORS.alkDown, 'ta10');
+            addDose("🧴 Alkalinity", `Lower TA from ${ta} to ${TARGETS.ta.target} ppm →`, dose, 'mL', false);
+        } else {
+            addDose("🧴 Alkalinity", `TA optimal (${ta} ppm) ✓`, 0, '', true);
+        }
+
+        // Cyanuric Acid
+        if (cya < TARGETS.cya.min) {
+            let dose = calcDose(cya, TARGETS.cya.target, FACTORS.cya);
+            addDose("☀️ Stabilizer (CYA)", `Raise CYA from ${cya} to ${TARGETS.cya.target} ppm →`, dose, 'g');
+        } else if (cya > TARGETS.cya.max) {
+            addDose("☀️ Stabilizer", `CYA high (${cya} ppm). Partial drain required.`, 0, '', false);
+        } else {
+            addDose("☀️ Stabilizer", `CYA in range (${cya} ppm) ✓`, 0, '', true);
+        }
+
+        // Calcium Hardness
+        if (hardness < TARGETS.hardness.min) {
+            let dose = calcDose(hardness, TARGETS.hardness.target, FACTORS.hardnessUp, 'hardness10');
+            addDose("🪨 Calcium Hardness", `Raise hardness from ${hardness} to ${TARGETS.hardness.target} ppm →`, dose, 'g');
+        } else if (hardness > TARGETS.hardness.max) {
+            addDose("🪨 Calcium Hardness", `Hardness high (${hardness} ppm). Dilution needed.`, 0, '', false);
+        } else {
+            addDose("🪨 Calcium Hardness", `Hardness good (${hardness} ppm) ✓`, 0, '', true);
+        }
+
+        // Saltwater
+        if (poolType === 'saltwater' && salt !== null) {
+            if (salt < TARGETS.salt.min) {
+                let dose = calcDose(salt, TARGETS.salt.target, FACTORS.salt, 'salt100');
+                addDose("🧂 Salt Level", `Raise salt from ${salt} to ${TARGETS.salt.target} ppm →`, dose, 'g', false, true);
+            } else if (salt > TARGETS.salt.max) {
+                addDose("🧂 Salt Level", `Salt high (${salt} ppm). Dilute or reduce SWG.`, 0, '', false);
+            } else {
+                addDose("🧂 Salt Level", `Salt ideal (${salt} ppm) ✓`, 0, '', true);
+            }
+        }
+
+        if (!hasAnyAction) {
+            container.innerHTML = '<div class="dose-card dose-optimal">🏆 All chemical levels perfect! Maintain regular filtration.</div>';
+        }
+    }
+
+    // Save reading
+    function saveReading() {
+        const vol = document.getElementById('pool-volume').value;
+        const unit = document.getElementById('volume-unit').value;
+        const poolType = document.getElementById('pool-type').value;
+        const data = {
+            id: Date.now(),
+            date: new Date().toLocaleString(),
+            volume: vol,
+            unit: unit,
+            poolType: poolType,
+            totalCl: document.getElementById('total-chlorine').value,
+            freeCl: document.getElementById('free-chlorine').value,
+            ph: document.getElementById('ph').value,
+            ta: document.getElementById('ta').value,
+            cya: document.getElementById('cya').value,
+            hardness: document.getElementById('hardness').value,
+            salt: poolType === 'saltwater' ? document.getElementById('salt-level').value : null
+        };
+        let saved = JSON.parse(localStorage.getItem('poolReadings') || '[]');
+        saved.unshift(data);
+        if (saved.length > 10) saved.pop();
+        localStorage.setItem('poolReadings', JSON.stringify(saved));
+        displaySavedReadings();
+        alert('Reading saved ✅');
+    }
+
+    function displaySavedReadings() {
+        const container = document.getElementById('saved-list');
+        const saved = JSON.parse(localStorage.getItem('poolReadings') || '[]');
+        if (saved.length === 0) {
+            container.innerHTML = '<div class="saved-entry">No saved readings yet.</div>';
+            return;
+        }
+        container.innerHTML = '';
+        saved.forEach(entry => {
+            const div = document.createElement('div');
+            div.className = 'saved-entry';
+            div.innerHTML = `<span><strong>${entry.date}</strong><br>pH:${entry.ph} | FC:${entry.freeCl}ppm | Vol:${entry.volume} ${entry.unit}</span>
+                             <button class="load-btn" onclick="loadReading(${entry.id})">Load</button>`;
+            container.appendChild(div);
+        });
+    }
+
+    function loadReading(id) {
+        const saved = JSON.parse(localStorage.getItem('poolReadings') || '[]');
+        const entry = saved.find(e => e.id === id);
+        if (!entry) return;
+        document.getElementById('pool-volume').value = entry.volume;
+        document.getElementById('volume-unit').value = entry.unit;
+        document.getElementById('pool-type').value = entry.poolType;
+        document.getElementById('total-chlorine').value = entry.totalCl;
+        document.getElementById('free-chlorine').value = entry.freeCl;
+        document.getElementById('ph').value = entry.ph;
+        document.getElementById('ta').value = entry.ta;
+        document.getElementById('cya').value = entry.cya;
+        document.getElementById('hardness').value = entry.hardness;
+        if (entry.poolType === 'saltwater' && entry.salt) {
+            document.getElementById('salt-level').value = entry.salt;
+            document.getElementById('salt-group').style.display = 'block';
+        } else {
+            document.getElementById('salt-group').style.display = 'none';
+        }
+        calculateDosing();
+    }
+
+    function resetToDefaults() {
+        document.getElementById('pool-volume').value = '50000';
+        document.getElementById('volume-unit').value = 'liters';
+        document.getElementById('pool-type').value = 'chlorine';
+        document.getElementById('total-chlorine').value = '1.2';
+        document.getElementById('free-chlorine').value = '1.0';
+        document.getElementById('ph').value = '7.0';
+        document.getElementById('ta').value = '70';
+        document.getElementById('cya').value = '25';
+        document.getElementById('hardness').value = '180';
+        document.getElementById('salt-level').value = '3000';
+        document.getElementById('salt-group').style.display = 'none';
+        calculateDosing();
+    }
+
+    // Reminders
+    function addReminder() {
+        let task = document.getElementById('task-type').value;
+        let freq = document.getElementById('freq').value;
+        let reminders = JSON.parse(localStorage.getItem('maintTasks') || '[]');
+        reminders.push({ id: Date.now(), task: task, freq: freq, added: new Date().toLocaleDateString() });
+        localStorage.setItem('maintTasks', JSON.stringify(reminders));
+        displayReminders();
+    }
+
+    function displayReminders() {
+        const container = document.getElementById('reminder-list');
+        let reminders = JSON.parse(localStorage.getItem('maintTasks') || '[]');
+        if (reminders.length === 0) {
+            container.innerHTML = '<div class="reminder-item">No active reminders. Add maintenance tasks above.</div>';
+            return;
+        }
+        container.innerHTML = '';
+        reminders.forEach(r => {
+            const div = document.createElement('div');
+            div.className = 'reminder-item';
+            div.innerHTML = `🧹 ${r.task} — every ${r.freq} <button style="background:#b91c1c; padding:3px 12px; margin-left:10px; border-radius:30px;" onclick="removeReminder(${r.id})">Remove</button>`;
+            container.appendChild(div);
+        });
+    }
+
+    function removeReminder(id) {
+        let reminders = JSON.parse(localStorage.getItem('maintTasks') || '[]');
+        reminders = reminders.filter(r => r.id !== id);
+        localStorage.setItem('maintTasks', JSON.stringify(reminders));
+        displayReminders();
+    }
+
+    // Event listeners - triggers recalculation on ANY change
+    document.getElementById('pool-type').addEventListener('change', function() {
+        const showSalt = document.getElementById('salt-group');
+        showSalt.style.display = this.value === 'saltwater' ? 'block' : 'none';
+        calculateDosing();
+    });
+    
+    // Add event listeners to ALL inputs for live updates
+    const allInputs = ['pool-volume', 'volume-unit', 'total-chlorine', 'free-chlorine', 'ph', 'ta', 'cya', 'hardness', 'salt-level'];
+    allInputs.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('input', () => calculateDosing());
+            element.addEventListener('change', () => calculateDosing());
+        }
+    });
+    
+    window.onload = () => {
+        displaySavedReadings();
+        displayReminders();
+        calculateDosing();
+    };
+    
+    // Make functions globally available
+    window.calculateDosing = calculateDosing;
+    window.saveReading = saveReading;
+    window.loadReading = loadReading;
+    window.resetToDefaults = resetToDefaults;
+    window.addReminder = addReminder;
+    window.removeReminder = removeReminder;
+</script>
+</body>
+</html>
